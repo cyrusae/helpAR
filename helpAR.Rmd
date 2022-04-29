@@ -11,7 +11,7 @@ ARPAbet. Its output is a vector in the original order.
 Most recent benchmarks (2022.04.29) are \~30ms time elapsed and \~25MiB
 memory usage for 350,000 rows of input.
 
-[It lives here.](https://github.com/cyrusae/helpAR)
+[It lives here.](https://github.com/cyrusae/helpAR) Report issues [here](https://github.com/cyrusae/helpAR/issues).
 
 Open in RStudio and follow along below to use.
 
@@ -225,7 +225,7 @@ rm(savAR, parsAR, fixAR, sendAR, makAR, helpAR)
     phonology as much as I am able because I have neurological issues
     that prevent me from recognizing IPA. I have proofread the lists
     helpAR uses multiple times and *believe* all the IPA is assigned to
-    the right ARPAbet and vice versa. Tell me if they're not.
+    the right ARPAbet and vice versa. [Tell me if they're not.](https://github.com/cyrusae/helpAR/issues)
 
 ## Attribution
 
