@@ -27,6 +27,7 @@ library(data.table)
 ```{r arpa-to-ipa}
 mARPA <- c("a", "@", "A", "c", "W", "x", "Y", "E", "R", "e", "I", "X", "i", "o", "O", "U", "u", "b", "C", "d", "D", "F", "L", "M", "N", "f", "g", "h", "J", "k", "l", "m", "n", "G", "p", "Q", "r", "s", "S", "t", "T", "v", "w", "H", "y", "z", "Z")
 clARPA <- c("AA", "AE", "AH", "AO", "AW", "AX", "AY", "EH", "ER", "EY", "IH", "IX", "IY", "OW", "OY", "UH", "UW", "B", "CH", "D", "DH", "DX", "EL", "EM", "EN", "F", "G", "H", "JH", "K", "L", "M", "N", "NG", "P", "Q", "R", "S", "SH", "T", "TH", "V", "W", "WH", "J", "Z", "ZH")
+lcARPA <- tolower(clARPA)
 stress1 <- c("AA1", "AE1", "AH1", "AO1", "AW1", "AX1", "AY1", "EH1", "ER1", "EY1", "IH1", "IX1", "IY1", "OW1", "OY1", "UH1", "UW1")
 stress1b <- tolower(stress1)
 stress2 <- c("AA2", "AE2", "AH2", "AO2", "AW2", "AX2", "AY2", "EH2", "ER2", "EY2", "IH2", "IX2", "IY2", "OW2", "OY2", "UH2", "UW2")
