@@ -241,4 +241,4 @@ that for two reasons:
 
 This will be a package eventually. I need to work out whether a) there
 are any glaring kinks that didn't come up in my initial tests and b) it
-could be faster in C++ first. As of 2022.04.29 it works when I test it but (as you can see) there are not example tests in this document yet.
+could be faster in C++ first. (This appears to be unlikely. A Python port may also happen eventually, but is likely to be much slower due to language constraints.) As of 2022.04.29 it works when I test it but (as you can see) there are not example tests in this document yet.
