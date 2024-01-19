@@ -1,6 +1,9 @@
 ## Create constant tables
 
+#mixed-case ARPAbet 
 mARPA <- c("a", "@", "A", "c", "W", "x", "Y", "E", "R", "e", "I", "X", "i", "o", "O", "U", "u", "b", "C", "d", "D", "F", "L", "M", "N", "f", "g", "h", "J", "k", "l", "m", "n", "G", "p", "Q", "r", "s", "S", "t", "T", "v", "w", "H", "y", "z", "Z")
+
+#single-case ARPAbet
 clARPA <- c("AA", "AE", "AH", "AO", "AW", "AX", "AY", "EH", "ER", "EY", "IH", "IX", "IY", "OW", "OY", "UH", "UW", "B", "CH", "D", "DH", "DX", "EL", "EM", "EN", "F", "G", "H", "JH", "K", "L", "M", "N", "NG", "P", "Q", "R", "S", "SH", "T", "TH", "V", "W", "WH", "J", "Z", "ZH")
 lcARPA <- tolower(clARPA)
 
@@ -15,8 +18,11 @@ stress0b <- tolower(stress0)
 
 ## TODO: Change stress handling to be regex-based
 
+#add unusual symbols 
 weirds <- c("AXR", "UX", "HH", "NX", "ENG")
 loweirds <- tolower(weirds)
+
+#create equivalent vectors for IPA
 weIPA <- c("\u025A", "\u0289", "h", "\u027E\u0303", "\u014B\u030D")
 unIPA <- c("\u0061", "\u00E6", "\u0250", "\u0254", "a\u028A", "\u0259", "a\u026A", "\u025B", "\u025d", "e\u026A", "\u026A", "\u0268", "i", "o\u028A", "\u0254\u026A", "\u028A", "u", "b", "\u02A7", "d", "\u00F0", "\u027E", "l\u0329", "m\u0329", "n\u0329", "f", "g", "h", "\u02A4", "k", "l", "m", "n", "\u014B", "p", "\u0294", "\u0279", "s", "\u0283", "t", "\u03B8", "v", "w", "\u028D", "y", "z", "\u0292")
 vowIPA <- c("\u0061", "\u00E6", "\u0250", "\u0254", "a\u028A", "\u0259", "a\u026A", "\u025B", "\u025D", "e\u026A", "\u026A", "\u0268", "i", "o\u028A", "\u0254\u026A", "\u028A", "u")
@@ -96,7 +102,7 @@ data.table::setkey(loweird, ar)
 #' @export
 #'
 #' @examples
-makAR <- \(dt) {
+makAR <- function(dt) {
   dt <- arM[dt]
   dt[is.na(ip), ip := arM[.(.SD), ip]]
   dt[is.na(ip), ip := arC[.(.SD), ip]]

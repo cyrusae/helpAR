@@ -40,7 +40,8 @@ fixAR <- function(x) {
 #'
 #' @examples
 helpAR <- function(x) {
-  un <- unique(x)
+#  un <- unique(x) #TRY: wrapr safe drop-in `uniques` instead
+  un <- wrapr::uniques(x = x)
   qc <- fixAR(un)
   res <- savAR(x)
   y <- makAR(parsAR(un))
