@@ -22,6 +22,13 @@ stress0b <- tolower(stress0)
 weirds <- c("AXR", "UX", "HH", "NX", "ENG")
 loweirds <- tolower(weirds)
 
+# TODO: add rest of TIMIT: 
+### PAU, EPI, H# lack relevantg IPA equivalents
+### AX-H, BCL, DCL, GCL, HV, KCL, PCL, TCL are not present here and do, strictly speaking, have IPA equivalents that could be included 
+### In practice I'm not sure the additional symbols would parse correctly for R's sake from a Unicode perspective but they *could* be added as options to have simplified to the vanilla IPA version?
+##### TODO: Add ability to detect and simplify TIMIT 
+##### TODO: Add disclaimer that the above happens 
+
 #create equivalent vectors for IPA
 weIPA <- c("\u025A", "\u0289", "h", "\u027E\u0303", "\u014B\u030D")
 unIPA <- c("\u0061", "\u00E6", "\u0250", "\u0254", "a\u028A", "\u0259", "a\u026A", "\u025B", "\u025d", "e\u026A", "\u026A", "\u0268", "i", "o\u028A", "\u0254\u026A", "\u028A", "u", "b", "\u02A7", "d", "\u00F0", "\u027E", "l\u0329", "m\u0329", "n\u0329", "f", "g", "h", "\u02A4", "k", "l", "m", "n", "\u014B", "p", "\u0294", "\u0279", "s", "\u0283", "t", "\u03B8", "v", "w", "\u028D", "y", "z", "\u0292")
