@@ -7,7 +7,8 @@
 #' @export
 #'
 #' @examples
-sendAR <- function(res) {
+sendAR <- function(res) { 
+  ### TODO: ...Where is 'or' coming from here? It worked in the original version but... what 
   setorder(res, or)
   vc <- res[[2]]
   vc
