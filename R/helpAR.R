@@ -1,63 +1,41 @@
-#turns input vector into data table
-savAR <- function(vecc) {
-  dt <- data.table(
-    rw = vecc,
-    ip = as.character(NA),
-    or = 1:length(vecc)
+
+helpAR <- function(x, #TODO: make keeping original input optional vs allowing replacements
+                   # keep = TRUE, 
+                   ...) {
+  wrapr::stop_if_dot_args(substitute(list(...)), 
+                          'helpAR') #TODO: Verify that this is working as intended, haven't actually used it before!
+#  stopifnot(isTRUEorFALSE(keep)) #no junk parameters
+  
+  stopifnot(is.list(x) || is.vector(x)) #need input to be parseable
+  vec <- as.character(x) #coerce input to character
+  
+  input <- data.table::data.table( #working table
+    rw = vec,
+    ip = as.character(NA), #placeholder for IPA
+    or = seq_along(x) #preserve original order
   )
-  setkey(dt, rw) 
-  dt
-}
-
-#turn the ipa column of our working table into a vector and return
-#' Title
-#'
-#' @param res 
-#'
-#' @return
-#' @export
-#'
-#' @examples
-sendAR <- function(res) { 
-  setorder(res, or)
-  vc <- res[[2]]
-  vc
-}
-
-#replace anything that couldn't be identified as IPA with whatever the original input was
-#' Title
-#'
-#' @param x 
-#'
-#' @return
-#' @export
-#'
-#' @examples
-fixAR <- function(x) {
-  qc <- data.table(
-    ar = x,
-    ip = x
+  data.table::setkey(input, rw) 
+  
+  #draw out only relevant characters from input 
+  pars <- vec %>.% gsub(pattern = '[^[:alpha:]@#]+',
+                        replacement = '', 
+                        x = ., 
+                        perl = TRUE) %>.%
+    wrapr::uniques(x = .)
+  
+  op <- data.table::data.table(
+    rw = pars, #draw uniques from input
+    ip = as.character(NA)
   )
-  setkey(qc, ar)
-  qc
-}
-
-#' Title
-#'
-#' @param x 
-#'
-#' @return
-#' @export
-#'
-#' @examples
-helpAR <- function(x) {
-#  un <- unique(x) #TRY: wrapr safe drop-in `uniques` instead
-  un <- wrapr::uniques(x = x)
-  qc <- fixAR(un)
-  res <- savAR(x)
-  y <- makAR(parsAR(un))
-  y <- y[is.na(ip), ip := qc[.(.SD), ip]][, i.ip := NULL]
-  y <- res[is.na(ip), ip := y[.(.SD), ip]]
-  yeet <- sendAR(y)
-  yeet
+  data.table::setkey(op, rw)
+  
+  y <- makAR(dt = op)
+  
+#  if (keep = TRUE) {
+    y <- y[is.na(ip), ip := op[.(.SD), ip]][, i.ip := NULL]
+#  }
+  z <- input[is.na(ip), ip := y[.(.SD), ip]]
+  data.table::setorder(z, or)
+  
+  yeet <- z[[2]]
 }
