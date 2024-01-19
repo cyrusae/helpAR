@@ -1,3 +1,14 @@
+#turns input vector into data table
+savAR <- function(vecc) {
+  dt <- data.table(
+    rw = vecc,
+    ip = as.character(NA),
+    or = 1:length(vecc)
+  )
+  setkey(dt, rw) 
+  dt
+}
+
 #turn the ipa column of our working table into a vector and return
 #' Title
 #'
@@ -8,7 +19,6 @@
 #'
 #' @examples
 sendAR <- function(res) { 
-  ### TODO: ...Where is 'or' coming from here? It worked in the original version but... what 
   setorder(res, or)
   vc <- res[[2]]
   vc
