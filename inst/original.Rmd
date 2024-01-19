@@ -1,0 +1,244 @@
+---
+title: "helpAR (notebook version)"
+author: "Cyrus Eosphoros"
+date: 2022.04.29
+output: html_notebook
+---
+
+*`helpAR`* uses `data.table` to generate unicode IPA substitutions for
+ARPAbet. Its output is a vector in the original order.
+
+Most recent benchmarks (2022.04.29) are \~30ms time elapsed and \~25MiB
+memory usage for 350,000 rows of input.
+
+[It lives here.](https://github.com/cyrusae/helpAR) Report issues [here](https://github.com/cyrusae/helpAR/issues).
+
+Open in RStudio and follow along below to use.
+
+## You will need data.table:
+
+```{r}
+if (!require(data.table)) { install.packages("data.table") }
+library(data.table)
+```
+
+## Generate translation tables:
+
+```{r arpa-to-ipa}
+mARPA <- c("a", "@", "A", "c", "W", "x", "Y", "E", "R", "e", "I", "X", "i", "o", "O", "U", "u", "b", "C", "d", "D", "F", "L", "M", "N", "f", "g", "h", "J", "k", "l", "m", "n", "G", "p", "Q", "r", "s", "S", "t", "T", "v", "w", "H", "y", "z", "Z")
+clARPA <- c("AA", "AE", "AH", "AO", "AW", "AX", "AY", "EH", "ER", "EY", "IH", "IX", "IY", "OW", "OY", "UH", "UW", "B", "CH", "D", "DH", "DX", "EL", "EM", "EN", "F", "G", "H", "JH", "K", "L", "M", "N", "NG", "P", "Q", "R", "S", "SH", "T", "TH", "V", "W", "WH", "J", "Z", "ZH")
+lcARPA <- tolower(clARPA)
+stress1 <- c("AA1", "AE1", "AH1", "AO1", "AW1", "AX1", "AY1", "EH1", "ER1", "EY1", "IH1", "IX1", "IY1", "OW1", "OY1", "UH1", "UW1")
+stress1b <- tolower(stress1)
+stress2 <- c("AA2", "AE2", "AH2", "AO2", "AW2", "AX2", "AY2", "EH2", "ER2", "EY2", "IH2", "IX2", "IY2", "OW2", "OY2", "UH2", "UW2")
+stress2b <- tolower(stress2)
+stress0 <- c("AA0", "AE0", "AH0", "AO0", "AW0", "AX0", "AY0", "EH0", "ER0", "EY0", "IH0", "IX0", "IY0", "OW0", "OY0", "UH0", "UW0")
+stress0b <- tolower(stress0)
+weirds <- c("AXR", "UX", "HH", "NX", "ENG")
+loweirds <- tolower(weirds)
+weIPA <- c("\u025A", "\u0289", "h", "\u027E\u0303", "\u014B\u030D")
+unIPA <- c("\u0061", "\u00E6", "\u0250", "\u0254", "a\u028A", "\u0259", "a\u026A", "\u025B", "\u025d", "e\u026A", "\u026A", "\u0268", "i", "o\u028A", "\u0254\u026A", "\u028A", "u", "b", "\u02A7", "d", "\u00F0", "\u027E", "l\u0329", "m\u0329", "n\u0329", "f", "g", "h", "\u02A4", "k", "l", "m", "n", "\u014B", "p", "\u0294", "\u0279", "s", "\u0283", "t", "\u03B8", "v", "w", "\u028D", "y", "z", "\u0292")
+vowIPA <- c("\u0061", "\u00E6", "\u0250", "\u0254", "a\u028A", "\u0259", "a\u026A", "\u025B", "\u025D", "e\u026A", "\u026A", "\u0268", "i", "o\u028A", "\u0254\u026A", "\u028A", "u")
+#make the reference tables
+arM <- data.table(
+  ar = mARPA,
+  ip = unIPA
+)
+setkey(arM, ar)
+rm(mARPA)
+arC <- data.table(
+  ar = clARPA,
+  ip = unIPA
+)
+setkey(arC, ar)
+rm(clARPA)
+arL <- data.table(
+  ar = lcARPA,
+  ip = unIPA
+)
+setkey(arL, ar)
+rm(lcARPA, unIPA)
+alt1 <- data.table(
+  ar = stress1,
+  ip = vowIPA
+)
+setkey(alt1, ar)
+rm(stress1)
+alt2 <- data.table(
+  ar = stress1b,
+  ip = vowIPA
+)
+setkey(alt2, ar)
+rm(stress1b)
+alt3 <- data.table(
+  ar = stress2,
+  ip = vowIPA
+)
+setkey(alt3, ar)
+rm(stress2)
+alt4 <- data.table(
+  ar = stress2b,
+  ip = vowIPA
+)
+setkey(alt4, ar)
+rm(stress2b)
+alt5 <- data.table(
+  ar = stress0,
+  ip = vowIPA
+)
+setkey(alt5, ar)
+rm(stress0)
+alt6 <- data.table(
+  ar = stress0b,
+  ip = vowIPA
+)
+setkey(alt6, ar)
+rm(stress0b, vowIPA)
+weird <- data.table(
+  ar = weirds,
+  ip = weIPA
+)
+setkey(weird, ar)
+rm(weirds)
+loweird <- data.table(
+  ar = loweirds,
+  ip = weIPA
+)
+setkey(loweird, ar)
+rm(loweirds, weIPA)
+```
+
+Leave these in working memory for as long as you intend to use
+*`helpAR`* to avoid repeating work.
+
+## The helpAR functions:
+
+```{r helpAR}
+#turns input vector into data table
+savAR <- function(vecc) {
+  dt <- data.table(
+    rw = vecc,
+    ip = as.character(NA),
+    or = 1:length(vecc)
+  )
+  setkey(dt, rw) 
+  dt
+}
+
+#makes table of unique phones from input
+parsAR <- function(un) {
+  op <- data.table(
+    rw = un,
+    ip = as.character(NA)
+  )
+  setkey(op, rw)
+  op
+}
+
+#the actual translation heavy lifting happens here
+makAR <- function(dt) {
+  dt <- arM[dt]
+  dt[is.na(ip), ip := arM[.(.SD), ip]]
+  dt[is.na(ip), ip := arC[.(.SD), ip]]
+  dt[is.na(ip), ip := arL[.(.SD), ip]]
+  dt[is.na(ip), ip := alt1[.(.SD), ip]]
+  dt[is.na(ip), ip := alt2[.(.SD), ip]]
+  dt[is.na(ip), ip := alt3[.(.SD), ip]]
+  dt[is.na(ip), ip := alt4[.(.SD), ip]]
+  dt[is.na(ip), ip := alt5[.(.SD), ip]]
+  dt[is.na(ip), ip := alt6[.(.SD), ip]]
+  dt[is.na(ip), ip := weird[.(.SD), ip]]
+  dt[is.na(ip), ip := loweird[.(.SD), ip]]
+  dt
+}
+
+#turn the ipa column of our working table into a vector and return
+sendAR <- function(res) {
+  setorder(res, or)
+  vc <- res[[2]]
+  vc
+}
+
+#replace anything that couldn't be identified as IPA with whatever the original input was
+fixAR <- function(x) {
+  qc <- data.table(
+    ar = x,
+    ip = x
+  )
+  setkey(qc, ar)
+  qc
+}
+
+helpAR <- function(x) {
+  un <- unique(x)
+  qc <- fixAR(un)
+  res <- savAR(x)
+  y <- makAR(parsAR(un))
+  y <- y[is.na(ip), ip := qc[.(.SD), ip]][, i.ip := NULL]
+  y <- res[is.na(ip), ip := y[.(.SD), ip]]
+  yeet <- sendAR(y)
+  yeet
+}
+```
+
+## How to use
+
+1.  Open this notebook in the same RStudio session you're using to do
+    work.
+
+2.  Run the above chunks in order. You have now loaded the functions for
+    use in your session.
+
+3.  Get your output like this:
+
+    `result <- helpAR([YOUR TABLE]$[PHONES COLUMN])`
+
+`result` will be a vector with length and ordering equal to the input.
+Replace the original phones column with it if you're feeling confident,
+or add it as a new column to be cautious.
+
+## Cleanup
+
+Remove the translation tables:
+
+```{r table-removing}
+rm(arM, arC, arL, alt1, alt2, alt3, alt4, alt5, alt6, weird, loweird)
+```
+
+Clean the functions out of working memory:
+
+```{r function-removing}
+rm(savAR, parsAR, fixAR, sendAR, makAR, helpAR)
+```
+
+## Caveats
+
+-   Requires that you feed it a vector in which every item is a *single*
+    phoneme. Giving a column of a tibble, table, or data.frame in which
+    each cell is a phone will work fine.
+-   Currently, *`helpAR`* a) disregards stress and b) only recognizes
+    digits 0-2 for stress. (Stress is being handled with the `alt_`
+    tables, so changing that should be fairly transparent copy and paste
+    if you need that in your life.)
+-   Doesn't have full TIMIT support yet ("ENG" is supported, no others);
+    you'd want to add it to `weird` if you need it.
+-   I'm not a phonologist. I am, specifically, a linguist who avoids
+    phonology as much as I am able because I have neurological issues
+    that prevent me from recognizing IPA. I have proofread the lists
+    helpAR uses multiple times and *believe* all the IPA is assigned to
+    the right ARPAbet and vice versa. [Tell me if they're not.](https://github.com/cyrusae/helpAR/issues)
+
+## Attribution
+
+If you use *`helpAR`* in your own work, you should be transparent about
+that for two reasons:
+
+1.  Any script you hand someone else that tries to call on it without
+    context will mysteriously fail, which is at best embarrassing.
+2.  It's licensed under LGPL and you shouldn't be a dick.
+
+## Future
+
+This will be a package eventually. I need to work out whether a) there
+are any glaring kinks that didn't come up in my initial tests and b) it
+could be faster in C++ first. (This appears to be unlikely. A Python port may also happen eventually, but is likely to be much slower due to language constraints.) As of 2022.04.29 it works when I test it but (as you can see) there are not example tests in this document yet.
