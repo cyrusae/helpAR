@@ -23,11 +23,18 @@ weirds <- c("AXR", "UX", "HH", "NX", "ENG")
 loweirds <- tolower(weirds)
 
 # TODO: add rest of TIMIT: 
-### PAU, EPI, H# lack relevantg IPA equivalents
+### PAU, EPI, H# lack relevant IPA equivalents
 ### AX-H, BCL, DCL, GCL, HV, KCL, PCL, TCL are not present here and do, strictly speaking, have IPA equivalents that could be included 
 ### In practice I'm not sure the additional symbols would parse correctly for R's sake from a Unicode perspective but they *could* be added as options to have simplified to the vanilla IPA version?
 ##### TODO: Add ability to detect and simplify TIMIT 
 ##### TODO: Add disclaimer that the above happens 
+
+## TODO: More ARPAbet edge cases:
+### G can be NX or NG as ŋ siNG
+### NX can otherwise be ɾ̃ wiNNer 
+##### ɾ̃ is an example of the kind of symbol I'm worried about dropping due to Unicode handling; currently NX is being parsed as it in weirds and ENG includes its own respective diacritic, though 
+##### So I guess belay that, past me already decided to go to Hell and I can't let him one-up me *now*
+
 
 #create equivalent vectors for IPA
 weIPA <- c("\u025A", "\u0289", "h", "\u027E\u0303", "\u014B\u030D")
